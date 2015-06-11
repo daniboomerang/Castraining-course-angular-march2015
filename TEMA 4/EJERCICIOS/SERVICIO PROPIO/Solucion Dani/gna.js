@@ -14,6 +14,11 @@ gnaWithService.directive('gna', function($interval, gnaService) {
                '       <h3> El numero aleatorio generado es: {{randomNumber}} </h3> ' +
                '     </div> ' +
                '   </div> ' +
+               '   <div id="displayBroadcast"> ' +
+               '     <div id="random-number-broadcast"> ' +
+               '       <h3> El numero aleatorio generado que viene del bradcast es: {{randomNumberQueVieneDeLaPruebaDelBroadcast}} </h3> ' +
+               '     </div> ' +
+               '   </div> ' +
                ' </div> ',
     link: function (scope, element, attrs) {
       scope.mod = attrs.mod;
@@ -22,16 +27,22 @@ gnaWithService.directive('gna', function($interval, gnaService) {
         $interval(function() {
           scope.randomNumber = gnaService.getRandomNumber(attrs.mod);
         }, scope.interval);
-      };      
+      };
+      scope.$on("event:newRandomNumber",function($event, randomNumber){
+        scope.randomNumberQueVieneDeLaPruebaDelBroadcast = randomNumber;
+        console.log(scope.randomNumberQueVieneDeLaPruebaDelBroadcast);
+      });
     }
   };
 });
 
 /* Creating a new service for aur app */  
-gnaWithService.factory('gnaService', function() {
+gnaWithService.factory('gnaService', function($rootScope) {
   return {
     getRandomNumber: function (mod) {
-      return Math.floor((Math.random() * mod) + 1);
+      var newRandomNumber = Math.floor((Math.random() * mod) + 1);
+      $rootScope.$broadcast("event:newRandomNumber", newRandomNumber);
+      return newRandomNumber;
     }  
   };
 });
